@@ -20,35 +20,5 @@ namespace Quipu_Task
         {
             InitializeComponent();
         }
-
-
-        private void CalculateButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                decimal depositAmount = decimal.Parse(DepositAmountTextBox.Text);
-                int term = int.Parse(TermTextBox.Text);
-                string paymentMethod = (PaymentMethodComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-                string currency = (CurrencyComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-
-                decimal rate = 0.05m; // Example fixed rate of 5%
-                decimal totalIncome = 0;
-
-                if (paymentMethod == "Capitalization")
-                {
-                    totalIncome = depositAmount * (decimal)Math.Pow((double)(1 + rate / 12), term) - depositAmount;
-                }
-                else if (paymentMethod == "Monthly Payout")
-                {
-                    totalIncome = depositAmount * (rate / 12) * term;
-                }
-
-                ResultTextBlock.Text = $"Expected Income in {currency}: {totalIncome:C}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}");
-            }
-        }
     }
 }
