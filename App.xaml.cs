@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Quipu_Task
 {
@@ -10,5 +8,4 @@ namespace Quipu_Task
     public partial class App : Application
     {
     }
-
 }

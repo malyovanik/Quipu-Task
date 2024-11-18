@@ -5,43 +5,60 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Quipu_Task.ViewModel"
         xmlns:convertors="clr-namespace:Quipu_Task.Converters"
+        xmlns:rules="clr-namespace:Quipu_Task.Rules"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-
+        Title="MainWindow" Height="500" Width="800">
     <Window.Resources>
-        <convertors:EnumToListConverter x:Key="EnumToListConverter"/> 
+        <convertors:EnumToListConverter x:Key="EnumToListConverter" />
+        <convertors:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
     <Window.DataContext>
-        <local:DepositCalculatorViewModel/>
+        <local:DepositCalculatorViewModel />
     </Window.DataContext>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="10">
-            <TextBlock Text="Deposit Amount:" Style="{StaticResource LabelStyle}"/>
-            <TextBox Text="{Binding DepositAmount, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
+            <TextBlock Text="Deposit Amount:" Style="{StaticResource LabelStyle}" />
+            <TextBox Text="{Binding DepositAmount, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}" />
 
-            <TextBlock Text="Term (in months):" Style="{StaticResource LabelStyle}"/>
-            <TextBox Text="{Binding Term, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
+            <TextBlock Text="Please enter a valid positive number."
+               Style="{StaticResource WarningMessageStyle}"
+               Visibility="{Binding IsDepositWarningVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-            <TextBlock Text="Interest Payment Method:" Style="{StaticResource LabelStyle}"/>
-            <ComboBox SelectedItem="{Binding SelectedPaymentMethod}" 
-                      ItemsSource="{Binding Source={x:Type local:PaymentMethod}, Converter={StaticResource EnumToListConverter}}" 
-                      Style="{StaticResource ComboBoxStyle}"/>
+            <TextBlock Text="Term (in months):" Style="{StaticResource LabelStyle}" />
+            <TextBox Text="{Binding Term, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}" />
+            <TextBlock Text="Please enter a valid positive number."
+               Style="{StaticResource WarningMessageStyle}"
+               Visibility="{Binding IsTermWarningVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-            <TextBlock Text="Currency:" Style="{StaticResource LabelStyle}"/>
-            <ComboBox SelectedItem="{Binding SelectedCurrency}" 
-                      ItemsSource="{Binding Source={x:Type local:Currency}, Converter={StaticResource EnumToListConverter}}" 
-                      Style="{StaticResource ComboBoxStyle}"/>
+            <TextBlock Text="Interest Payment Method:" Style="{StaticResource LabelStyle}" />
+            <ComboBox SelectedItem="{Binding SelectedPaymentMethod}"
+                      ItemsSource="{Binding Source={x:Type local:PaymentMethod}, Converter={StaticResource EnumToListConverter}}"
+                      Style="{StaticResource ComboBoxStyle}" />
 
-            <Button Content="Calculate" Command="{Binding CalculateCommand}" Style="{StaticResource ButtonStyle}"/>
+            <TextBlock Text="Currency:" Style="{StaticResource LabelStyle}" />
+            <ComboBox SelectedItem="{Binding SelectedCurrency}"
+                      ItemsSource="{Binding Source={x:Type local:Currency}, Converter={StaticResource EnumToListConverter}}"
+                      Style="{StaticResource ComboBoxStyle}" />
+
+            <Button Content="Calculate"
+                    IsEnabled="{Binding IsFormValid}"
+                    Command="{Binding CalculateCommand}" Style="{StaticResource ButtonStyle}" />
         </StackPanel>
 
-        <TextBlock Text="{Binding Result, StringFormat=Expected Income: {0:C}}" 
-                   Grid.Row="1" Margin="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock 
+                   Grid.Row="1" Margin="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" >
+            <TextBlock.Text>
+                <MultiBinding StringFormat="Expected Income: {0:N2} {1}">
+                    <Binding Path="Result" />
+                    <Binding Path="SelectedCurrency" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
     </Grid>
 </Window>
