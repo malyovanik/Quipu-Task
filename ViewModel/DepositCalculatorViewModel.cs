@@ -23,23 +23,39 @@ namespace Quipu_Task.ViewModel
     {
         private readonly DepositCalculatorModel _model = new();
 
-        private decimal _depositAmount;
-        private int _term;
+        private string _depositAmount;
+        private string _term;
         private PaymentMethod _selectedPaymentMethod;
         private Currency _selectedCurrency;
         private decimal _result;
         private decimal _annualRate = 0.05m; // Example fixed rate
+        private decimal _depositValue;
+        private int _termValue;
 
-        public decimal DepositAmount
+        public string DepositAmount
         {
             get => _depositAmount;
-            set { _depositAmount = value; OnPropertyChanged(); }
+            set
+            {
+                _depositAmount = value;
+                IsDepositWarningVisible = !decimal.TryParse(_depositAmount, out decimal depositValue) || depositValue <= 0;
+                _depositValue = depositValue;
+                IsFormValid = !IsTermWarningVisible && !IsDepositWarningVisible;
+                OnPropertyChanged();
+            }
         }
 
-        public int Term
+        public string Term
         {
             get => _term;
-            set { _term = value; OnPropertyChanged(); }
+            set
+            {
+                _term = value;
+                IsTermWarningVisible = !int.TryParse(_term, out int termValue) || termValue <= 0;
+                _termValue = termValue;
+                IsFormValid = !IsTermWarningVisible && !IsDepositWarningVisible;
+                OnPropertyChanged();
+            }
         }
 
         public PaymentMethod SelectedPaymentMethod
@@ -60,19 +76,57 @@ namespace Quipu_Task.ViewModel
             set { _result = value; OnPropertyChanged(); }
         }
 
+        private bool _isFormValid;
+
+        public bool IsFormValid
+        {
+            get => _isFormValid;
+            set
+            {
+                if (_isFormValid != value)
+                {
+                    _isFormValid = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isDepositWarningVisible;
+
+        public bool IsDepositWarningVisible
+        {
+            get => _isDepositWarningVisible;
+            set
+            {
+                _isDepositWarningVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isTermWarningVisible;
+
+        public bool IsTermWarningVisible
+        {
+            get => _isTermWarningVisible;
+            set
+            {
+                _isTermWarningVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand CalculateCommand { get; }
 
         public DepositCalculatorViewModel()
         {
-            CalculateCommand = new RelayCommand(ExecuteCalculate, CanExecuteCalculate);
+            CalculateCommand = new RelayCommand(ExecuteCalculate);
+            DepositAmount = "1000"; // Set 1k by default.
+            Term = "12"; // Set 1 year by default.
         }
-
-        private bool CanExecuteCalculate(object parameter) =>
-            DepositAmount > 0 && Term > 0;
 
         private void ExecuteCalculate(object parameter)
         {
-            Result = _model.CalculateTotalIncome(DepositAmount, Term, _annualRate, SelectedPaymentMethod);
+            Result = _model.CalculateTotalIncome(_depositValue, _termValue, _annualRate, SelectedPaymentMethod);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
